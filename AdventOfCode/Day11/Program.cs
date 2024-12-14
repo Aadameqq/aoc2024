@@ -1,37 +1,47 @@
-﻿const string dataFile = "../../../data/data.txt";
-var data = File.ReadAllLines(dataFile)[0].Split(" ");
+﻿using Day11;
 
-var stones = new LinkedList<string>();
+const string dataFile = "../../../data/data.txt";
+var input = File.ReadAllLines(dataFile)[0].Split(" ");
 
-foreach (var line in data) stones.AddLast(line);
+var stones = new Stones(input);
 
-var blinks = 25;
-
-for (var blinkIndex = 0; blinkIndex < blinks; blinkIndex++)
+void ApplyBlinks(int blinksAmount)
 {
-    var currentStone = stones.First;
-    while (currentStone != null)
+    for (var blinkIndex = 0; blinkIndex < blinksAmount; blinkIndex++)
     {
-        if (currentStone.Value == "0")
+        var changes = stones.DumpForChanges();
+        foreach (var stone in stones)
         {
-            currentStone.Value = "1";
-        }
-        else if (currentStone.Value.Length % 2 == 0)
-        {
-            var middleIndex = currentStone.Value.Length / 2;
-            var firstHalf = currentStone.Value[..middleIndex];
-            var secondHalf = currentStone.Value[middleIndex..];
-            var secondHalfWithoutLeadingZeros = secondHalf.TrimStart('0');
-            currentStone.Value = secondHalfWithoutLeadingZeros == "" ? "0" : secondHalfWithoutLeadingZeros;
-            stones.AddBefore(currentStone, firstHalf);
-        }
-        else
-        {
-            currentStone.Value = (long.Parse(currentStone.Value) * 2024).ToString();
+            if (stone == "0")
+            {
+                changes.IncreaseStoneCount("1", stones.GetStoneCount(stone));
+            }
+            else if (stone.Length % 2 == 0)
+            {
+                var middleIndex = stone.Length / 2;
+                var firstHalf = stone[..middleIndex];
+                var secondHalf = stone[middleIndex..];
+                var secondHalfWithoutLeadingZeros = secondHalf.TrimStart('0') == "" ? "0" : secondHalf.TrimStart('0');
+                changes.IncreaseStoneCount(firstHalf, stones.GetStoneCount(stone));
+                changes.IncreaseStoneCount(secondHalfWithoutLeadingZeros, stones.GetStoneCount(stone));
+            }
+            else
+            {
+                changes.IncreaseStoneCount((long.Parse(stone) * 2024).ToString(), stones.GetStoneCount(stone));
+            }
+
+            changes.DecreaseStoneCount(stone, stones.GetStoneCount(stone));
         }
 
-        currentStone = currentStone.Next;
+        stones.ApplyChanges(changes);
     }
 }
 
-Console.WriteLine($"Stones: {stones.Count}");
+
+var partOneBlinksAmount = 25;
+ApplyBlinks(partOneBlinksAmount);
+Console.WriteLine($"Stones after 25 blinks: {stones.Count()}");
+
+var partTwoBlinksAmount = 75;
+ApplyBlinks(partTwoBlinksAmount - partOneBlinksAmount);
+Console.WriteLine($"Stones after 75 blinks: {stones.Count()}");
