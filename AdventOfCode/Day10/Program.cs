@@ -1,52 +1,57 @@
 ﻿const string dataFile = "../../../data/data.txt";
 
 var lines = File.ReadAllLines(dataFile);
-
 var trails = lines.Select(line => line.Select(x => x - '0').ToArray()).ToArray();
+
+var rowsCount = trails.Length;
+var columnsCount = trails[0].Length;
 
 var totalScore = 0;
 var totalRating = 0;
 
 bool IsWithinBounds(int row, int column)
 {
-    return row >= 0 && row < trails.Length && column >= 0 && column < trails[0].Length;
+    return row >= 0 && row < rowsCount && column >= 0 && column < columnsCount;
 }
 
-int GetPathScore(int row, int column, bool[,] visitedEnds, int height = 0, bool isRating = false)
+
+bool AreDirectionsDiagonal(int i, int columnDirection1)
 {
-    if (!IsWithinBounds(row, column)) return 0;
-    if (trails[row][column] != height) return 0;
-    if (trails[row][column] == height && height == 9 && (isRating || !visitedEnds[row, column]))
+    return Math.Abs(i + columnDirection1) != 1;
+}
+
+void GetPathScore(int row, int column, List<(int, int)> trailEndings, int height = 0)
+{
+    if (!IsWithinBounds(row, column)) return;
+    if (trails[row][column] != height) return;
+    if (trails[row][column] == height && height == 9)
     {
-        visitedEnds[row, column] = true;
-        return 1;
+        trailEndings.Add((row, column));
+        return;
     }
 
-    var sum = 0;
     for (var rowDirection = -1; rowDirection <= 1; rowDirection++)
     for (var columnDirection = -1; columnDirection <= 1; columnDirection++)
     {
         if (rowDirection == 0 && columnDirection == 0) continue;
-        if (Math.Abs(rowDirection + columnDirection) != 1) continue;
+        if (AreDirectionsDiagonal(rowDirection, columnDirection)) continue;
 
-        sum += GetPathScore(row + rowDirection, column + columnDirection, visitedEnds, height + 1, isRating);
+        GetPathScore(row + rowDirection, column + columnDirection, trailEndings, height + 1);
     }
-
-    return sum;
 }
 
 int GetTrailHeadScore(int row, int column)
 {
-    var visitedEnds = new bool[trails.Length, trails[0].Length];
-
-    return GetPathScore(row, column, visitedEnds);
+    var trailEndings = new List<(int, int)>();
+    GetPathScore(row, column, trailEndings);
+    return trailEndings.Distinct().ToArray().Length;
 }
 
 int GetTrailHeadRating(int row, int column)
 {
-    var visitedEnds = new bool[trails.Length, trails[0].Length];
-
-    return GetPathScore(row, column, visitedEnds, 0, true);
+    var trailEndings = new List<(int, int)>();
+    GetPathScore(row, column, trailEndings);
+    return trailEndings.Count;
 }
 
 
@@ -58,6 +63,4 @@ for (var column = 0; column < trails[row].Length; column++)
 }
 
 Console.WriteLine($"Total score: {totalScore}");
-Console.WriteLine($"Is total score correct: {totalScore == 698}");
 Console.WriteLine($"Total rating: {totalRating}");
-Console.WriteLine($"Is total rating correct: {totalRating == 1436}");
