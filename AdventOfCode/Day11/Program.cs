@@ -12,25 +12,29 @@ void ApplyBlinks(int blinksAmount)
         var changes = stones.DumpForChanges();
         foreach (var stone in stones)
         {
+            var stoneCount = stones.GetStoneCount(stone);
             if (stone == "0")
             {
-                changes.IncreaseStoneCount("1", stones.GetStoneCount(stone));
+                changes.IncreaseStoneCount("1", stoneCount);
             }
             else if (stone.Length % 2 == 0)
             {
                 var middleIndex = stone.Length / 2;
+
                 var firstHalf = stone[..middleIndex];
                 var secondHalf = stone[middleIndex..];
+
                 var secondHalfWithoutLeadingZeros = secondHalf.TrimStart('0') == "" ? "0" : secondHalf.TrimStart('0');
-                changes.IncreaseStoneCount(firstHalf, stones.GetStoneCount(stone));
-                changes.IncreaseStoneCount(secondHalfWithoutLeadingZeros, stones.GetStoneCount(stone));
+
+                changes.IncreaseStoneCount(firstHalf, stoneCount);
+                changes.IncreaseStoneCount(secondHalfWithoutLeadingZeros, stoneCount);
             }
             else
             {
-                changes.IncreaseStoneCount((long.Parse(stone) * 2024).ToString(), stones.GetStoneCount(stone));
+                changes.IncreaseStoneCount((long.Parse(stone) * 2024).ToString(), stoneCount);
             }
 
-            changes.DecreaseStoneCount(stone, stones.GetStoneCount(stone));
+            changes.DecreaseStoneCount(stone, stoneCount);
         }
 
         stones.ApplyChanges(changes);
