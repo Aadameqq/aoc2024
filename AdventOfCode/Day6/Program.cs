@@ -1,56 +1,31 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿using Day6;
 
-List<List<bool>> obstructions = [];
+const string dataFile = "../../../data/data.txt";
 
-List<List<bool>> visited = [];
-var totalVisited = 0;
+var input = File.ReadAllLines(dataFile);
 
-var guardRow = 0;
-var guardColumn = 0;
-var guardDirection = GuardDirection.Up;
-
-
-bool hasGuardReachedBorder()
-{
-    return guardRow == 0 ||
-           guardColumn == 0 ||
-           guardRow == obstructions.Count - 1 ||
-           guardColumn == obstructions[0].Count - 1;
-}
-
-bool isBorder(int x, int y)
-{
-    return x == 0 ||
-           y == 0 ||
-           x == obstructions.Count - 1 ||
-           y == obstructions[0].Count - 1;
-}
-
+var map = new Map(input.Length, input[0].Length);
 
 var currentRow = 0;
 
-foreach (var line in File.ReadLines(dataFile))
-{
-    obstructions.Add([]);
-    visited.Add([]);
+var playerPosition = new Position(0, 0);
 
+foreach (var line in input)
+{
     var currentColumn = 0;
     foreach (var location in line.ToCharArray())
     {
-        if (location == '^')
+        var currentPosition = new Position(currentColumn, currentRow);
+        switch (location)
         {
-            guardRow = currentRow;
-            guardColumn = currentColumn;
-            visited[currentRow].Add(true);
-            totalVisited++;
+            case '^':
+                playerPosition = currentPosition;
+                map.Visit(currentPosition);
+                break;
+            case '#':
+                map.AddObstruction(currentPosition);
+                break;
         }
-        else
-        {
-            visited[currentRow].Add(false);
-        }
-
-        obstructions[currentRow].Add(location == '#');
-
 
         currentColumn++;
     }
@@ -58,61 +33,23 @@ foreach (var line in File.ReadLines(dataFile))
     currentRow++;
 }
 
-(int, int) GetNewGuardPosition()
+var mainPlayer = new Player(playerPosition);
+
+while (!map.IsPositionOnBorder(mainPlayer.CurrentPosition))
 {
-    return guardDirection switch
+    var nextPosition = mainPlayer.NextPosition();
+
+    if (map.HasObstruction(nextPosition))
     {
-        GuardDirection.Up => (-1, 0),
-        GuardDirection.Down => (1, 0),
-        GuardDirection.Left => (0, -1),
-        GuardDirection.Right => (0, 1),
-        _ => throw new ArgumentOutOfRangeException()
-    };
-}
-
-void changeDirection()
-{
-    guardDirection = guardDirection switch
-    {
-        GuardDirection.Up => GuardDirection.Right,
-        GuardDirection.Down => GuardDirection.Left,
-        GuardDirection.Left => GuardDirection.Up,
-        GuardDirection.Right => GuardDirection.Down,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-}
-
-var test = 0;
-
-while (!hasGuardReachedBorder())
-{
-    var newPosition = GetNewGuardPosition();
-
-    if (obstructions[guardRow + newPosition.Item1][guardColumn + newPosition.Item2])
-    {
-        changeDirection();
+        mainPlayer.ChangeDirection();
     }
     else
     {
-        guardRow += newPosition.Item1;
-        guardColumn += newPosition.Item2;
-        if (!visited[guardRow][guardColumn])
-        {
-            visited[guardRow][guardColumn] = true;
-            totalVisited++;
-        }
+        mainPlayer.Move();
+        map.Visit(mainPlayer.CurrentPosition);
     }
 }
 
-Console.WriteLine($"Total fields guard visited: {totalVisited}");
-Console.WriteLine($"Total fields guard visited: {test}");
-
-internal enum GuardDirection
-{
-    Up,
-    Down,
-    Left,
-    Right
-}
+Console.WriteLine($"Total fields guard visited: {map.TotalVisited}");
 
 // 5030
