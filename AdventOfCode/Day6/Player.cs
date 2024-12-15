@@ -2,24 +2,24 @@ namespace Day6;
 
 public class Player(Position _position)
 {
-    private Direction direction = Direction.Up;
-
-    private Player(Position position, Direction _direction) : this(position)
+    public Player(Position position, Direction direction) : this(position)
     {
-        direction = _direction;
+        CurrentDirection = direction;
     }
+
+    public Direction CurrentDirection { get; private set; } = Direction.Up;
 
     public Position CurrentPosition { get; private set; } = _position;
 
 
     public Player Copy()
     {
-        return new Player(CurrentPosition, direction);
+        return new Player(CurrentPosition with { }, CurrentDirection);
     }
 
     public void ChangeDirection()
     {
-        direction = direction switch
+        CurrentDirection = CurrentDirection switch
         {
             Direction.Up => Direction.Right,
             Direction.Down => Direction.Left,
@@ -31,11 +31,11 @@ public class Player(Position _position)
 
     public void Move()
     {
-        CurrentPosition = CurrentPosition.ApplyTransition(direction.GetTransition());
+        CurrentPosition = CurrentPosition.ApplyTransition(CurrentDirection.GetTransition());
     }
 
     public Position NextPosition()
     {
-        return CurrentPosition.ApplyTransition(direction.GetTransition());
+        return CurrentPosition.ApplyTransition(CurrentDirection.GetTransition());
     }
 }

@@ -20,7 +20,7 @@ foreach (var line in input)
         {
             case '^':
                 playerPosition = currentPosition;
-                map.Visit(currentPosition);
+                map.Visit(currentPosition, Direction.Up);
                 break;
             case '#':
                 map.AddObstruction(currentPosition);
@@ -34,6 +34,61 @@ foreach (var line in input)
 }
 
 var mainPlayer = new Player(playerPosition);
+var additionalObstructions = 0;
+
+
+var obs = new bool [input.Length, input[0].Length];
+
+void CheckForAlternativePaths()
+{
+    var visitDirection = new Direction [input.Length, input[0].Length];
+    var visited = new bool [input.Length, input[0].Length];
+    var newPlayer = mainPlayer.Copy();
+    var positionToObstruct = newPlayer.NextPosition();
+
+    if (map.IsPositionOnBorder1(positionToObstruct)) return;
+    if (map.HasObstruction(positionToObstruct)) return;
+    if (obs[positionToObstruct.X, positionToObstruct.Y]) return;
+    obs[positionToObstruct.X, positionToObstruct.Y] = true;
+
+    map.AddObstruction(positionToObstruct);
+    while (!map.IsPositionOnBorder(newPlayer.CurrentPosition))
+    {
+        var nextPosition = newPlayer.NextPosition();
+
+        if (map.HasObstruction(nextPosition))
+        {
+            newPlayer.ChangeDirection();
+        }
+        else
+        {
+            newPlayer.Move();
+
+            if (visited[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] &&
+                visitDirection[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] == newPlayer.CurrentDirection)
+            {
+                additionalObstructions++;
+                break;
+            }
+
+            visited[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] = true;
+            visitDirection[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] = newPlayer.CurrentDirection;
+            if (
+                map.IsVisited(newPlayer.CurrentPosition) &&
+                map.GetVisitDirection(newPlayer.CurrentPosition) == newPlayer.CurrentDirection
+            )
+            {
+                additionalObstructions++;
+                break;
+            }
+
+            // newPlayer.Move();
+        }
+    }
+
+    map.RemoveObstruction(positionToObstruct);
+}
+
 
 while (!map.IsPositionOnBorder(mainPlayer.CurrentPosition))
 {
@@ -45,11 +100,12 @@ while (!map.IsPositionOnBorder(mainPlayer.CurrentPosition))
     }
     else
     {
+        CheckForAlternativePaths();
         mainPlayer.Move();
-        map.Visit(mainPlayer.CurrentPosition);
+        map.Visit(mainPlayer.CurrentPosition, mainPlayer.CurrentDirection);
     }
 }
 
-Console.WriteLine($"Total fields guard visited: {map.TotalVisited}");
 
-// 5030
+Console.WriteLine($"Total fields guard visited: {map.TotalVisited}");
+Console.WriteLine($"Total additional obstruction positions: {additionalObstructions}");
