@@ -2,7 +2,7 @@ namespace Day6;
 
 public class Player(Position _position)
 {
-    public Player(Position position, Direction direction) : this(position)
+    private Player(Position position, Direction direction) : this(position)
     {
         CurrentDirection = direction;
     }

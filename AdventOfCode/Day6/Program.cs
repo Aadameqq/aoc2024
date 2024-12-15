@@ -80,8 +80,6 @@ void CheckForAlternativePaths()
                 additionalObstructions++;
                 break;
             }
-
-            // newPlayer.Move();
         }
     }
 

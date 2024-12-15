@@ -1,25 +1,11 @@
-using System.Collections;
-
 namespace Day6;
 
-public class Map(int sizeX, int sizeY) : IEnumerable<Position>
+public class Map(int sizeX, int sizeY)
 {
     private readonly bool[,] obstructions = new bool [sizeX, sizeY];
     private readonly Direction[,] visitDirection = new Direction [sizeX, sizeY];
     private readonly bool[,] visited = new bool [sizeX, sizeY];
     public int TotalVisited { get; private set; }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    public IEnumerator<Position> GetEnumerator()
-    {
-        for (var x = 0; x < sizeX; x++)
-        for (var y = 0; y < sizeY; y++)
-            yield return new Position(x, y);
-    }
 
     public void AddObstruction(Position position)
     {
@@ -35,12 +21,6 @@ public class Map(int sizeX, int sizeY) : IEnumerable<Position>
     {
         var (x, y) = (x: position.X, y: position.Y);
         return x == 0 || x == sizeX - 1 || y == 0 || y == sizeY - 1;
-    }
-
-    public bool IsPositionOnBorder1(Position position)
-    {
-        var (x, y) = (x: position.X, y: position.Y);
-        return x < 0 || x >= sizeX || y < 0 || y >= sizeY;
     }
 
     public void Visit(Position position, Direction direction)
