@@ -8,7 +8,7 @@ var map = new Map(input.Length, input[0].Length);
 
 var currentRow = 0;
 
-var playerPosition = new Position(0, 0);
+var guardPosition = new Position(0, 0);
 
 foreach (var line in input)
 {
@@ -19,8 +19,8 @@ foreach (var line in input)
         switch (location)
         {
             case '^':
-                playerPosition = currentPosition;
-                map.Visit(currentPosition, Direction.Up);
+                guardPosition = currentPosition;
+
                 break;
             case '#':
                 map.AddObstruction(currentPosition);
@@ -33,47 +33,48 @@ foreach (var line in input)
     currentRow++;
 }
 
-var mainPlayer = new Player(playerPosition);
+var mainGuard = new Guard(guardPosition);
+map.Visit(mainGuard.CurrentPosition, mainGuard.CurrentDirection);
 var additionalObstructions = 0;
 
-
-var obs = new bool [input.Length, input[0].Length];
+var alreadyObstructed = new bool [input.Length, input[0].Length];
 
 void CheckForAlternativePaths()
 {
-    var newPlayerVisited = new VisitedPositions(input.Length, input[0].Length);
-    var newPlayer = mainPlayer.Copy();
-    var positionToObstruct = newPlayer.NextPosition();
+    var testGuardVisited = new VisitedPositions(input.Length, input[0].Length);
+    var testGuard = mainGuard.Copy();
+    var positionToObstruct = testGuard.NextPosition();
 
     if (map.HasObstruction(positionToObstruct)) return;
-    if (obs[positionToObstruct.X, positionToObstruct.Y]) return;
-    obs[positionToObstruct.X, positionToObstruct.Y] = true;
+
+    if (alreadyObstructed[positionToObstruct.X, positionToObstruct.Y]) return;
+    alreadyObstructed[positionToObstruct.X, positionToObstruct.Y] = true;
 
     map.AddObstruction(positionToObstruct);
-    while (!map.IsPositionOnBorder(newPlayer.CurrentPosition))
+    while (!map.IsPositionOnBorder(testGuard.CurrentPosition))
     {
-        var nextPosition = newPlayer.NextPosition();
+        var nextPosition = testGuard.NextPosition();
 
         if (map.HasObstruction(nextPosition))
         {
-            newPlayer.ChangeDirection();
+            testGuard.ChangeDirection();
         }
         else
         {
-            newPlayer.Move();
+            testGuard.Move();
 
-            if (newPlayerVisited.HasBeenVisited(newPlayer.CurrentPosition) &&
-                newPlayerVisited.GetDirection(newPlayer.CurrentPosition) == newPlayer.CurrentDirection)
+            if (testGuardVisited.HasBeenVisited(testGuard.CurrentPosition) &&
+                testGuardVisited.GetDirection(testGuard.CurrentPosition) == testGuard.CurrentDirection)
             {
                 additionalObstructions++;
                 break;
             }
 
-            newPlayerVisited.MarkAsVisited(newPlayer.CurrentPosition, newPlayer.CurrentDirection);
+            testGuardVisited.MarkAsVisited(testGuard.CurrentPosition, testGuard.CurrentDirection);
 
             if (
-                map.IsVisited(newPlayer.CurrentPosition) &&
-                map.GetVisitDirection(newPlayer.CurrentPosition) == newPlayer.CurrentDirection
+                map.IsVisited(testGuard.CurrentPosition) &&
+                map.GetVisitDirection(testGuard.CurrentPosition) == testGuard.CurrentDirection
             )
             {
                 additionalObstructions++;
@@ -86,19 +87,19 @@ void CheckForAlternativePaths()
 }
 
 
-while (!map.IsPositionOnBorder(mainPlayer.CurrentPosition))
+while (!map.IsPositionOnBorder(mainGuard.CurrentPosition))
 {
-    var nextPosition = mainPlayer.NextPosition();
+    var nextPosition = mainGuard.NextPosition();
 
     if (map.HasObstruction(nextPosition))
     {
-        mainPlayer.ChangeDirection();
+        mainGuard.ChangeDirection();
     }
     else
     {
         CheckForAlternativePaths();
-        mainPlayer.Move();
-        map.Visit(mainPlayer.CurrentPosition, mainPlayer.CurrentDirection);
+        mainGuard.Move();
+        map.Visit(mainGuard.CurrentPosition, mainGuard.CurrentDirection);
     }
 }
 

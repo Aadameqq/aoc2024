@@ -1,8 +1,8 @@
 namespace Day6;
 
-public class Player(Position _position)
+public class Guard(Position _position)
 {
-    private Player(Position position, Direction direction) : this(position)
+    private Guard(Position position, Direction direction) : this(position)
     {
         CurrentDirection = direction;
     }
@@ -12,9 +12,9 @@ public class Player(Position _position)
     public Position CurrentPosition { get; private set; } = _position;
 
 
-    public Player Copy()
+    public Guard Copy()
     {
-        return new Player(CurrentPosition with { }, CurrentDirection);
+        return new Guard(CurrentPosition with { }, CurrentDirection);
     }
 
     public void ChangeDirection()
