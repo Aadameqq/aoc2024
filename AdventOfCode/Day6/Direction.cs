@@ -2,6 +2,7 @@ namespace Day6;
 
 public enum Direction
 {
+    None,
     Up,
     Down,
     Left,

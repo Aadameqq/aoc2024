@@ -41,8 +41,7 @@ var obs = new bool [input.Length, input[0].Length];
 
 void CheckForAlternativePaths()
 {
-    var visitDirection = new Direction [input.Length, input[0].Length];
-    var visited = new bool [input.Length, input[0].Length];
+    var newPlayerVisited = new VisitedPositions(input.Length, input[0].Length);
     var newPlayer = mainPlayer.Copy();
     var positionToObstruct = newPlayer.NextPosition();
 
@@ -63,15 +62,15 @@ void CheckForAlternativePaths()
         {
             newPlayer.Move();
 
-            if (visited[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] &&
-                visitDirection[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] == newPlayer.CurrentDirection)
+            if (newPlayerVisited.HasBeenVisited(newPlayer.CurrentPosition) &&
+                newPlayerVisited.GetDirection(newPlayer.CurrentPosition) == newPlayer.CurrentDirection)
             {
                 additionalObstructions++;
                 break;
             }
 
-            visited[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] = true;
-            visitDirection[newPlayer.CurrentPosition.X, newPlayer.CurrentPosition.Y] = newPlayer.CurrentDirection;
+            newPlayerVisited.MarkAsVisited(newPlayer.CurrentPosition, newPlayer.CurrentDirection);
+
             if (
                 map.IsVisited(newPlayer.CurrentPosition) &&
                 map.GetVisitDirection(newPlayer.CurrentPosition) == newPlayer.CurrentDirection
