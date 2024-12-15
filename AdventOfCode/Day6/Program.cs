@@ -46,7 +46,6 @@ void CheckForAlternativePaths()
     var newPlayer = mainPlayer.Copy();
     var positionToObstruct = newPlayer.NextPosition();
 
-    if (map.IsPositionOnBorder1(positionToObstruct)) return;
     if (map.HasObstruction(positionToObstruct)) return;
     if (obs[positionToObstruct.X, positionToObstruct.Y]) return;
     obs[positionToObstruct.X, positionToObstruct.Y] = true;
