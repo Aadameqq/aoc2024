@@ -44,6 +44,16 @@ void TryAddAntinode(Position antinode)
     }
 }
 
+void PutAntinodes(Position position, Translation translation)
+{
+    var antinodePosition = position;
+    while (IsWithinBounds(antinodePosition))
+    {
+        TryAddAntinode(antinodePosition);
+        antinodePosition = translation.TranslatePosition(antinodePosition);
+    }
+}
+
 foreach (var frequency in antennasByFrequency.Keys)
 {
     var antennasCount = antennasByFrequency[frequency].Count;
@@ -64,3 +74,21 @@ foreach (var frequency in antennasByFrequency.Keys)
 }
 
 Console.WriteLine($"Total amount of antinodes: {totalAntinodes}");
+
+foreach (var frequency in antennasByFrequency.Keys)
+{
+    var antennasCount = antennasByFrequency[frequency].Count;
+    for (var i = 0; i < antennasCount; i++)
+    for (var j = i + 1; j < antennasCount; j++)
+    {
+        var firstAntenna = antennasByFrequency[frequency][i];
+        var secondAntenna = antennasByFrequency[frequency][j];
+
+        var translation = new Translation(firstAntenna, secondAntenna);
+
+        PutAntinodes(firstAntenna, translation);
+        PutAntinodes(secondAntenna, translation.Reverse());
+    }
+}
+
+Console.WriteLine($"Total amount of antinodes after update: {totalAntinodes}");
