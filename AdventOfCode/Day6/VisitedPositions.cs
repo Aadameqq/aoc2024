@@ -1,8 +1,8 @@
 namespace Day6;
 
-public class VisitedPositions(int mapSizeX, int mapSizeY)
+public class VisitedPositions(Size mapSize)
 {
-    private readonly Direction[,] visited = new Direction [mapSizeX, mapSizeY];
+    private readonly Direction[,] visited = new Direction [mapSize.X, mapSize.Y];
 
     public bool HasBeenVisited(Position position)
     {

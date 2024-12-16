@@ -1,8 +1,10 @@
 namespace Day6;
 
-public class Guard(Position _position)
+public class Guard(Position _position, Size _mapSize)
 {
-    private Guard(Position position, Direction direction) : this(position)
+    private readonly VisitedPositions alreadyVisited = new(_mapSize);
+
+    private Guard(Position position, Direction direction, Size mapSize) : this(position, mapSize)
     {
         CurrentDirection = direction;
     }
@@ -11,10 +13,16 @@ public class Guard(Position _position)
 
     public Position CurrentPosition { get; private set; } = _position;
 
+    public void MoveAndVisit()
+    {
+        Move();
+        MarkCurrentAsVisited();
+    }
+
 
     public Guard Copy()
     {
-        return new Guard(CurrentPosition with { }, CurrentDirection);
+        return new Guard(CurrentPosition with { }, CurrentDirection, _mapSize);
     }
 
     public void ChangeDirection()
@@ -37,5 +45,22 @@ public class Guard(Position _position)
     public Position NextPosition()
     {
         return CurrentPosition.ApplyTransition(CurrentDirection.GetTransition());
+    }
+
+    public bool HasAlreadyVisitedCurrent()
+    {
+        return alreadyVisited.HasBeenVisited(CurrentPosition) &&
+               alreadyVisited.GetDirection(CurrentPosition) == CurrentDirection;
+    }
+
+    public bool HasVisited(Position position, Direction direction)
+    {
+        return alreadyVisited.HasBeenVisited(position) &&
+               alreadyVisited.GetDirection(position) == direction;
+    }
+
+    public void MarkCurrentAsVisited()
+    {
+        alreadyVisited.MarkAsVisited(CurrentPosition, CurrentDirection);
     }
 }

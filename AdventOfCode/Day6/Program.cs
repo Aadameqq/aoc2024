@@ -33,7 +33,9 @@ foreach (var line in input)
     currentRow++;
 }
 
-var mainGuard = new Guard(guardPosition);
+var mapSize = new Size(input.Length, input[0].Length);
+
+var mainGuard = new Guard(guardPosition, mapSize);
 map.Visit(mainGuard.CurrentPosition, mainGuard.CurrentDirection);
 var additionalObstructions = 0;
 
@@ -41,7 +43,6 @@ var alreadyObstructed = new bool [input.Length, input[0].Length];
 
 void CheckForAlternativePaths()
 {
-    var testGuardVisited = new VisitedPositions(input.Length, input[0].Length);
     var testGuard = mainGuard.Copy();
     var positionToObstruct = testGuard.NextPosition();
 
@@ -63,14 +64,13 @@ void CheckForAlternativePaths()
         {
             testGuard.Move();
 
-            if (testGuardVisited.HasBeenVisited(testGuard.CurrentPosition) &&
-                testGuardVisited.GetDirection(testGuard.CurrentPosition) == testGuard.CurrentDirection)
+            if (testGuard.HasAlreadyVisitedCurrent())
             {
                 additionalObstructions++;
                 break;
             }
 
-            testGuardVisited.MarkAsVisited(testGuard.CurrentPosition, testGuard.CurrentDirection);
+            testGuard.MarkCurrentAsVisited();
 
             if (
                 map.IsVisited(testGuard.CurrentPosition) &&
