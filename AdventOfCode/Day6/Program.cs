@@ -41,7 +41,7 @@ mainGuard.MarkCurrentAsVisited();
 
 var additionalObstructions = 0;
 
-var alreadyObstructed = new bool [input.Length, input[0].Length];
+var alreadyObstructed = new bool [mapSize.X, mapSize.Y];
 
 void CheckForAlternativePaths()
 {
@@ -61,26 +61,25 @@ void CheckForAlternativePaths()
         if (map.HasObstruction(nextPosition))
         {
             testGuard.ChangeDirection();
+            continue;
         }
-        else
+
+        testGuard.Move();
+
+        if (testGuard.HasAlreadyVisitedCurrent())
         {
-            testGuard.Move();
+            additionalObstructions++;
+            break;
+        }
 
-            if (testGuard.HasAlreadyVisitedCurrent())
-            {
-                additionalObstructions++;
-                break;
-            }
+        testGuard.MarkCurrentAsVisited();
 
-            testGuard.MarkCurrentAsVisited();
-
-            if (
-                mainGuard.HasVisited(testGuard.CurrentPosition, testGuard.CurrentDirection)
-            )
-            {
-                additionalObstructions++;
-                break;
-            }
+        if (
+            mainGuard.HasVisited(testGuard.CurrentPosition, testGuard.CurrentDirection)
+        )
+        {
+            additionalObstructions++;
+            break;
         }
     }
 
