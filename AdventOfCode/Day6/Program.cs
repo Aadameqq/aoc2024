@@ -4,7 +4,9 @@ const string dataFile = "../../../data/data.txt";
 
 var input = File.ReadAllLines(dataFile);
 
-var map = new Map(input.Length, input[0].Length);
+var mapSize = new Size(input.Length, input[0].Length);
+
+var map = new Map(mapSize);
 
 var currentRow = 0;
 
@@ -33,10 +35,10 @@ foreach (var line in input)
     currentRow++;
 }
 
-var mapSize = new Size(input.Length, input[0].Length);
 
 var mainGuard = new Guard(guardPosition, mapSize);
-map.Visit(mainGuard.CurrentPosition, mainGuard.CurrentDirection);
+mainGuard.MarkCurrentAsVisited();
+
 var additionalObstructions = 0;
 
 var alreadyObstructed = new bool [input.Length, input[0].Length];
@@ -73,8 +75,7 @@ void CheckForAlternativePaths()
             testGuard.MarkCurrentAsVisited();
 
             if (
-                map.IsVisited(testGuard.CurrentPosition) &&
-                map.GetVisitDirection(testGuard.CurrentPosition) == testGuard.CurrentDirection
+                mainGuard.HasVisited(testGuard.CurrentPosition, testGuard.CurrentDirection)
             )
             {
                 additionalObstructions++;
@@ -98,11 +99,10 @@ while (!map.IsPositionOnBorder(mainGuard.CurrentPosition))
     else
     {
         CheckForAlternativePaths();
-        mainGuard.Move();
-        map.Visit(mainGuard.CurrentPosition, mainGuard.CurrentDirection);
+        mainGuard.MoveAndVisit();
     }
 }
 
 
-Console.WriteLine($"Total fields guard visited: {map.TotalVisited}");
+Console.WriteLine($"Total fields guard visited: {mainGuard.GetVisitedPositionsAmount()}");
 Console.WriteLine($"Total additional obstruction positions: {additionalObstructions}");

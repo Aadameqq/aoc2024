@@ -63,4 +63,9 @@ public class Guard(Position _position, Size _mapSize)
     {
         alreadyVisited.MarkAsVisited(CurrentPosition, CurrentDirection);
     }
+
+    public int GetVisitedPositionsAmount()
+    {
+        return alreadyVisited.VisitedAmount;
+    }
 }

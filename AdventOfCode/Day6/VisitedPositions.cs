@@ -3,6 +3,7 @@ namespace Day6;
 public class VisitedPositions(Size mapSize)
 {
     private readonly Direction[,] visited = new Direction [mapSize.X, mapSize.Y];
+    public int VisitedAmount { get; private set; }
 
     public bool HasBeenVisited(Position position)
     {
@@ -11,6 +12,8 @@ public class VisitedPositions(Size mapSize)
 
     public void MarkAsVisited(Position position, Direction direction)
     {
+        if (visited[position.X, position.Y] == Direction.None)
+            VisitedAmount++;
         visited[position.X, position.Y] = direction;
     }
 
