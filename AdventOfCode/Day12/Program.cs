@@ -1,50 +1,51 @@
-﻿const string dataFile = "../../../data/data.txt";
-var input = File.ReadAllLines(dataFile);
+﻿using Day12;
 
-var totalRows = input.Length;
-var totalColumns = input.First().Length;
+const string dataFile = "../../../data/data.txt";
+var fields = File.ReadAllLines(dataFile);
 
-var alreadyCounted = new bool[totalRows, totalColumns];
+var totalRows = fields.Length;
+var totalColumns = fields.First().Length;
+
+var alreadyChecked = new bool[totalRows, totalColumns];
 
 bool IsWithinBounds(int row, int column)
 {
     return row >= 0 && row < totalRows && column >= 0 && column < totalColumns;
 }
 
-bool AreDirectionsDiagonal(int i, int columnDirection1)
-{
-    return Math.Abs(i + columnDirection1) != 1;
-}
+List<(int, int)> directionsTransitions = [(1, 0), (-1, 0), (0, 1), (0, -1)];
 
-(int, int) Crawler(int row, int column)
+Plot FindPlotRecursively(int row, int column)
 {
-    if (alreadyCounted[row, column]) return (0, 0);
-    alreadyCounted[row, column] = true;
-    var perimeter = 4;
-    var tt = 0;
-    for (var rowDirection = -1; rowDirection <= 1; rowDirection++)
-    for (var columnDirection = -1; columnDirection <= 1; columnDirection++)
+    var plot = new Plot();
+
+    alreadyChecked[row, column] = true;
+
+    foreach (var directionTransition in directionsTransitions)
     {
-        if (rowDirection == 0 && columnDirection == 0) continue;
-        if (AreDirectionsDiagonal(rowDirection, columnDirection)) continue;
-        if (!IsWithinBounds(row + rowDirection, column + columnDirection)) continue;
-        if (input[row + rowDirection][column + columnDirection] != input[row][column]) continue;
-        perimeter--;
-        var (t, p) = Crawler(row + rowDirection, column + columnDirection);
-        tt += t;
-        perimeter += p;
+        var (rowTransition, columnTransition) = directionTransition;
+        var nextRow = row + rowTransition;
+        var nextColumn = column + columnTransition;
+
+        if (!IsWithinBounds(nextRow, nextColumn)) continue;
+        if (fields[nextRow][nextColumn] != fields[row][column]) continue;
+
+        plot.DecreasePerimeter();
+
+        if (alreadyChecked[nextRow, nextColumn]) continue;
+
+        var nextPlot = FindPlotRecursively(nextRow, nextColumn);
+        plot.MergeWith(nextPlot);
     }
 
-    return (tt + 1, perimeter);
+    return plot;
 }
 
 var totalCost = 0;
 
 for (var row = 0; row < totalRows; row++)
 for (var column = 0; column < totalColumns; column++)
-{
-    var (count, cost) = Crawler(row, column);
-    totalCost += count * cost;
-}
+    if (!alreadyChecked[row, column])
+        totalCost += FindPlotRecursively(row, column).CalculateCost();
 
 Console.WriteLine($"Total cost: {totalCost}");
