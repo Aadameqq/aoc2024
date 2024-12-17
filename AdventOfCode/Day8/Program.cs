@@ -59,7 +59,6 @@ void PutAntinodes(Position position, Transition transition)
 
 var totalAntinodes = 0;
 
-
 foreach (var frequency in antennasByFrequency.Keys)
 {
     var antennasCount = antennasByFrequency[frequency].Count;
