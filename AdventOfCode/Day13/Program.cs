@@ -11,8 +11,8 @@ Point ParseButtonInput(string input)
 
     if (match.Success)
     {
-        var x = int.Parse(match.Groups[1].Value);
-        var y = int.Parse(match.Groups[2].Value);
+        var x = long.Parse(match.Groups[1].Value);
+        var y = long.Parse(match.Groups[2].Value);
         return new Point(x, y);
     }
 
@@ -25,15 +25,15 @@ Point ParsePrizeInput(string input)
 
     if (match.Success)
     {
-        var x = int.Parse(match.Groups[1].Value);
-        var y = int.Parse(match.Groups[2].Value);
+        var x = long.Parse(match.Groups[1].Value);
+        var y = long.Parse(match.Groups[2].Value);
         return new Point(x, y);
     }
 
     throw new ArgumentException($"Invalid input '{input}'");
 }
 
-var totalCost = 0;
+var totalCost = 0L;
 while (!reader.EndOfStream)
 {
     var line = reader.ReadLine();
@@ -43,31 +43,42 @@ while (!reader.EndOfStream)
     var secondButton = ParseButtonInput(reader.ReadLine());
     var prize = ParsePrizeInput(reader.ReadLine());
 
-    var cost = 0;
+    var top = prize.Y * firstButton.X - prize.X * firstButton.Y;
+    var bottom = secondButton.Y * firstButton.X - secondButton.X * firstButton.Y;
+    if (top % bottom != 0) continue;
+    var b = top / bottom;
 
-    var firstButtonPresses = 0;
+    var a = (prize.X - b * secondButton.X) / firstButton.X;
 
-    while (prize.IsPositive() && firstButtonPresses <= 100)
-    {
-        if (prize.IsScaledBy(secondButton))
-        {
-            var scale = prize.GetScaleFactor(secondButton);
-
-            if (scale <= 100)
-            {
-                cost += scale;
-                prize -= secondButton.MultiplyBy(scale);
-                break;
-            }
-        }
-
-        prize -= firstButton;
-        cost += 3;
-        firstButtonPresses++;
-    }
-
-    if (prize == new Point(0, 0) && firstButtonPresses <= 100) totalCost += cost;
+    if (a <= 100 && b <= 100 && a >= 0 && b >= 0) totalCost += a * 3 + b;
 }
 
 Console.WriteLine($"Total cost: {totalCost}");
-// 38714
+reader = new StreamReader(dataFile);
+var totalCost2 = 0L;
+while (!reader.EndOfStream)
+{
+    var line = reader.ReadLine();
+    if (line.Length == 0) continue;
+
+    var firstButton = ParseButtonInput(line);
+    var secondButton = ParseButtonInput(reader.ReadLine());
+    var prize = ParsePrizeInput(reader.ReadLine());
+
+    prize += new Point(10000000000000, 10000000000000);
+
+    var top = prize.Y * firstButton.X - prize.X * firstButton.Y;
+    var bottom = secondButton.Y * firstButton.X - secondButton.X * firstButton.Y;
+    if (top % bottom != 0 || bottom == 0) continue;
+    var b = top / bottom;
+
+    top = prize.X - b * secondButton.X;
+    bottom = firstButton.X;
+    if (top % bottom != 0 || bottom == 0) continue;
+    var a = top / bottom;
+
+
+    if (a >= 0 && b >= 0) totalCost2 += a * 3 + b;
+}
+
+Console.WriteLine($"Total cost: {totalCost2}");
