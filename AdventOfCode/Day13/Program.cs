@@ -38,16 +38,20 @@ long CalculateDeterminant(long x, long y, long a, long b)
     return x * b - a * y;
 }
 
-const int AVAILABLE_PRESSES_PER_BUTTON = 100;
-const int B_PRESS_COST = 1;
-const int A_PRESS_COST = 3;
 
 bool HasSingleSolution(long mainDet, long xDet, long yDet)
 {
     return mainDet != 0 && xDet % mainDet == 0 && yDet % mainDet == 0;
 }
 
+Point correctPrizeCoordinates(Point incorrect)
+{
+    const long correctionFactor = 10000000000000;
+    return new Point(incorrect.X + correctionFactor, incorrect.Y + correctionFactor);
+}
+
 var totalCost = 0L;
+var totalCostWithCorrectedCoordinates = 0L;
 while (!reader.EndOfStream)
 {
     var line = reader.ReadLine();
@@ -57,17 +61,31 @@ while (!reader.EndOfStream)
     var secondButton = ParseButtonInput(reader.ReadLine());
     var prize = ParsePrizeInput(reader.ReadLine());
 
-    var mainDet = CalculateDeterminant(firstButton.X, firstButton.Y, secondButton.X, secondButton.Y);
-    var xDet = CalculateDeterminant(prize.X, prize.Y, secondButton.X, secondButton.Y);
-    var yDet = CalculateDeterminant(firstButton.X, firstButton.Y, prize.X, prize.Y);
+    totalCost += CalculateCost(firstButton, secondButton, prize);
+    totalCostWithCorrectedCoordinates +=
+        CalculateCost(firstButton, secondButton, correctPrizeCoordinates(prize), false);
+}
 
-    if (!HasSingleSolution(mainDet, xDet, yDet)) continue;
+long CalculateCost(Point buttonA, Point buttonB, Point target, bool shouldRestrictPresses = true)
+{
+    const int availablePressesPerButton = 100;
+    const int bPressCost = 1;
+    const int aPressCost = 3;
+
+    var mainDet = CalculateDeterminant(buttonA.X, buttonA.Y, buttonB.X, buttonB.Y);
+    var xDet = CalculateDeterminant(target.X, target.Y, buttonB.X, buttonB.Y);
+    var yDet = CalculateDeterminant(buttonA.X, buttonA.Y, target.X, target.Y);
+
+    if (!HasSingleSolution(mainDet, xDet, yDet)) return 0;
 
     var aPresses = xDet / mainDet;
     var bPresses = yDet / mainDet;
 
-    if (aPresses <= AVAILABLE_PRESSES_PER_BUTTON && bPresses <= AVAILABLE_PRESSES_PER_BUTTON)
-        totalCost += aPresses * A_PRESS_COST + bPresses * B_PRESS_COST;
+    if (shouldRestrictPresses &&
+        (aPresses > availablePressesPerButton || bPresses > availablePressesPerButton)) return 0;
+
+    return aPresses * aPressCost + bPresses * bPressCost;
 }
 
 Console.WriteLine($"Total cost: {totalCost}");
+Console.WriteLine($"Total cost with corrected coordinates: {totalCostWithCorrectedCoordinates}");
