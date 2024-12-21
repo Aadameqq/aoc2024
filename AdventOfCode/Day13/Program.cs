@@ -33,6 +33,20 @@ Point ParsePrizeInput(string input)
     throw new ArgumentException($"Invalid input '{input}'");
 }
 
+long CalculateDeterminant(long x, long y, long a, long b)
+{
+    return x * b - a * y;
+}
+
+const int AVAILABLE_PRESSES_PER_BUTTON = 100;
+const int B_PRESS_COST = 1;
+const int A_PRESS_COST = 3;
+
+bool HasSingleSolution(long mainDet, long xDet, long yDet)
+{
+    return mainDet != 0 && xDet % mainDet == 0 && yDet % mainDet == 0;
+}
+
 var totalCost = 0L;
 while (!reader.EndOfStream)
 {
@@ -43,42 +57,17 @@ while (!reader.EndOfStream)
     var secondButton = ParseButtonInput(reader.ReadLine());
     var prize = ParsePrizeInput(reader.ReadLine());
 
-    var top = prize.Y * firstButton.X - prize.X * firstButton.Y;
-    var bottom = secondButton.Y * firstButton.X - secondButton.X * firstButton.Y;
-    if (top % bottom != 0) continue;
-    var b = top / bottom;
+    var mainDet = CalculateDeterminant(firstButton.X, firstButton.Y, secondButton.X, secondButton.Y);
+    var xDet = CalculateDeterminant(prize.X, prize.Y, secondButton.X, secondButton.Y);
+    var yDet = CalculateDeterminant(firstButton.X, firstButton.Y, prize.X, prize.Y);
 
-    var a = (prize.X - b * secondButton.X) / firstButton.X;
+    if (!HasSingleSolution(mainDet, xDet, yDet)) continue;
 
-    if (a <= 100 && b <= 100 && a >= 0 && b >= 0) totalCost += a * 3 + b;
+    var aPresses = xDet / mainDet;
+    var bPresses = yDet / mainDet;
+
+    if (aPresses <= AVAILABLE_PRESSES_PER_BUTTON && bPresses <= AVAILABLE_PRESSES_PER_BUTTON)
+        totalCost += aPresses * A_PRESS_COST + bPresses * B_PRESS_COST;
 }
 
 Console.WriteLine($"Total cost: {totalCost}");
-reader = new StreamReader(dataFile);
-var totalCost2 = 0L;
-while (!reader.EndOfStream)
-{
-    var line = reader.ReadLine();
-    if (line.Length == 0) continue;
-
-    var firstButton = ParseButtonInput(line);
-    var secondButton = ParseButtonInput(reader.ReadLine());
-    var prize = ParsePrizeInput(reader.ReadLine());
-
-    prize += new Point(10000000000000, 10000000000000);
-
-    var top = prize.Y * firstButton.X - prize.X * firstButton.Y;
-    var bottom = secondButton.Y * firstButton.X - secondButton.X * firstButton.Y;
-    if (top % bottom != 0 || bottom == 0) continue;
-    var b = top / bottom;
-
-    top = prize.X - b * secondButton.X;
-    bottom = firstButton.X;
-    if (top % bottom != 0 || bottom == 0) continue;
-    var a = top / bottom;
-
-
-    if (a >= 0 && b >= 0) totalCost2 += a * 3 + b;
-}
-
-Console.WriteLine($"Total cost: {totalCost2}");
