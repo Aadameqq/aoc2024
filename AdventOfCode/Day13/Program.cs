@@ -1,36 +1,32 @@
 ﻿using System.Text.RegularExpressions;
 using Day13;
 
-const string dataFile = "../../../data/data.txt";
+var totalCost = 0L;
+var totalCostWithCorrectedCoordinates = 0L;
 
-var reader = new StreamReader(dataFile);
-
-Point ParseButtonInput(string input)
+Point correctTargetCoordinates(Point incorrect)
 {
-    var match = Regex.Match(input, @"X\+(\d+), Y\+(\d+)");
-
-    if (match.Success)
-    {
-        var x = long.Parse(match.Groups[1].Value);
-        var y = long.Parse(match.Groups[2].Value);
-        return new Point(x, y);
-    }
-
-    throw new ArgumentException($"Invalid input '{input}'");
+    const long correctionFactor = 10000000000000;
+    return new Point(incorrect.X + correctionFactor, incorrect.Y + correctionFactor);
 }
 
-Point ParsePrizeInput(string input)
+const string dataFile = "../../../data/data.txt";
+var input = File.ReadAllText(dataFile);
+
+var pattern = @"Button A: X\+(\d+), Y\+(\d+)\s*" +
+              @"Button B: X\+(\d+), Y\+(\d+)\s*" +
+              @"Prize: X=(\d+), Y=(\d+)";
+
+var matches = new Regex(pattern).Matches(input);
+
+foreach (Match match in matches)
 {
-    var match = Regex.Match(input, @"X\=(\d+), Y\=(\d+)");
+    var buttonA = new Point(long.Parse(match.Groups[1].Value), long.Parse(match.Groups[2].Value));
+    var buttonB = new Point(long.Parse(match.Groups[3].Value), long.Parse(match.Groups[4].Value));
+    var target = new Point(long.Parse(match.Groups[5].Value), long.Parse(match.Groups[6].Value));
 
-    if (match.Success)
-    {
-        var x = long.Parse(match.Groups[1].Value);
-        var y = long.Parse(match.Groups[2].Value);
-        return new Point(x, y);
-    }
-
-    throw new ArgumentException($"Invalid input '{input}'");
+    totalCost += CalculateCost(buttonA, buttonB, target);
+    totalCostWithCorrectedCoordinates += CalculateCost(buttonA, buttonB, correctTargetCoordinates(target), false);
 }
 
 long CalculateDeterminant(long x, long y, long a, long b)
@@ -38,33 +34,11 @@ long CalculateDeterminant(long x, long y, long a, long b)
     return x * b - a * y;
 }
 
-
 bool HasSingleSolution(long mainDet, long xDet, long yDet)
 {
     return mainDet != 0 && xDet % mainDet == 0 && yDet % mainDet == 0;
 }
 
-Point correctPrizeCoordinates(Point incorrect)
-{
-    const long correctionFactor = 10000000000000;
-    return new Point(incorrect.X + correctionFactor, incorrect.Y + correctionFactor);
-}
-
-var totalCost = 0L;
-var totalCostWithCorrectedCoordinates = 0L;
-while (!reader.EndOfStream)
-{
-    var line = reader.ReadLine();
-    if (line.Length == 0) continue;
-
-    var firstButton = ParseButtonInput(line);
-    var secondButton = ParseButtonInput(reader.ReadLine());
-    var prize = ParsePrizeInput(reader.ReadLine());
-
-    totalCost += CalculateCost(firstButton, secondButton, prize);
-    totalCostWithCorrectedCoordinates +=
-        CalculateCost(firstButton, secondButton, correctPrizeCoordinates(prize), false);
-}
 
 long CalculateCost(Point buttonA, Point buttonB, Point target, bool shouldRestrictPresses = true)
 {
