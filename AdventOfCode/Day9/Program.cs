@@ -5,37 +5,36 @@ const string dataFile = "../../../data/data.txt";
 
 var diskMap = File.ReadAllLines(dataFile)[0].ToCharArray().Select(x => x - '0').ToArray();
 
-var memory = new FileSystem(diskMap);
+var fileSystem = new FileSystem(diskMap);
 
-foreach (var file in memory.EnumerateFilesBackwards())
+// foreach (var file in memory.EnumerateFilesBackwards())
+// {
+//     while (file.Size() > 0 && file.MinIndex() > memory.GetFirstFreeSpace().Value.Start)
+//     {
+//         if (!memory.IsThereFreeSpace())
+//         {
+//             break;
+//         }
+//
+//         var freeSpace = memory.GetFirstFreeSpace();
+//         memory.OverwriteFreeSpace(file, freeSpace);
+//     }
+// }
+//
+// Console.WriteLine(memory.CalculateCheckSum());
+// Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
+
+fileSystem = new FileSystem(diskMap);
+
+foreach (var file in fileSystem.EnumerateFilesBackwards())
 {
-    while (file.Size() > 0 && file.MinIndex() > memory.GetFirstFreeSpace().Value.Start)
-    {
-        if (!memory.IsThereFreeSpace())
-        {
-            break;
-        }
-
-        var freeSpace = memory.GetFirstFreeSpace();
-        memory.OverwriteFreeSpace(file, freeSpace);
-    }
-}
-
-Console.WriteLine(memory.CalculateCheckSum());
-Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
-
-memory = new FileSystem(diskMap);
-
-foreach (var file in memory.EnumerateFilesBackwards())
-{
-    foreach (var node in memory.EnumerateFreeSpace())
+    foreach (var node in fileSystem.EnumerateFreeSpace())
     {
         var freeSpace = node.Value;
-        if (file.Indexes.Count == 0 || freeSpace.Start > file.MinIndex()) break;
-        if (freeSpace.Size < file.Size()) continue;
-        memory.OverwriteFreeSpace(file, node);
+        if (file.Size() == 0 || file.DoesOccurBefore(freeSpace)) break;
+        fileSystem.TryMoveFile(file, node);
     }
 }
 
-Console.WriteLine(memory.CalculateCheckSum());
-Console.WriteLine(memory.CalculateCheckSum() == 6415163624282);
+Console.WriteLine(fileSystem.CalculateCheckSum());
+Console.WriteLine(fileSystem.CalculateCheckSum() == 6415163624282);

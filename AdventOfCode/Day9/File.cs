@@ -1,17 +1,32 @@
 namespace Day9;
 
-public class File(int _id, List<int> _indexes)
+public class File(int _id, MemoryBlock _memoryBlock)
 {
     public readonly int Id = _id;
-    public List<int> Indexes = [.._indexes];
+    private MemoryBlock memoryBlock = _memoryBlock;
 
     public int Size()
     {
-        return Indexes.Count;
+        return memoryBlock.Size;
     }
 
-    public int MinIndex()
+    public void Empty()
     {
-        return Indexes.Min();
+        memoryBlock = MemoryBlock.Empty;
+    }
+
+    public bool DoesOccurBefore(MemoryBlock otherMemoryBlock)
+    {
+        return memoryBlock.FirstIndex < otherMemoryBlock.FirstIndex;
+    }
+
+    public MemoryBlock ToMemoryBlock()
+    {
+        return memoryBlock;
+    }
+
+    public void ChangeMemoryBlock(MemoryBlock block)
+    {
+        memoryBlock = block;
     }
 }

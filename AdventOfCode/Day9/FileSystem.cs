@@ -1,11 +1,9 @@
-using System.Collections;
-
 namespace Day9;
 
 public class FileSystem
 {
     private readonly List<File> files = [];
-    private readonly LinkedList<FreeSpace> freeSpaceList = [];
+    private readonly FreeSpace freeSpace = new();
     private readonly Memory memory = new();
 
     public FileSystem(int[] diskMap)
@@ -15,8 +13,8 @@ public class FileSystem
         {
             if (IsDiskMapFragmentFreeSpace(i))
             {
-                freeSpaceList.AddLast(new FreeSpace(memory.GetCapacity(), memory.GetCapacity() + diskMap[i] - 1));
-                memory.AllocateFreeSpaceBlock(diskMap[i]);
+                var memoryBlock = memory.AllocateFreeSpaceBlock(diskMap[i]);
+                freeSpace.Add(memoryBlock);
                 continue;
             }
 
@@ -31,81 +29,80 @@ public class FileSystem
         return index % 2 == 1;
     }
 
-    public LinkedListNode<FreeSpace> GetFirstFreeSpace()
-    {
-        return freeSpaceList.First;
-    }
-
     public IEnumerable<File> EnumerateFilesBackwards()
     {
         return files.AsEnumerable().Reverse();
     }
 
-    public bool IsThereFreeSpace()
-    {
-        return freeSpaceList.Count != 0;
-    }
 
-    public void RemoveFile(File file)
-    {
-        memory.FreeMemory(file.Indexes);
-        file.Indexes = [];
-    }
+    // public void PartiallyRemoveFile(File file, int amount)
+    // {
+    //     memory.FreeMemory(file.Indexes[^amount..]);
+    //     file.Indexes = file.Indexes[..^amount];
+    // }
 
-    public void PartiallyRemoveFile(File file, int amount)
+    public bool TryMoveFile(File file, LinkedListNode<MemoryBlock> node)
     {
-        memory.FreeMemory(file.Indexes[^amount..]);
-        file.Indexes = file.Indexes[..^amount];
-    }
+        var freeSpaceBlock = node.Value;
 
-    public void OverwriteFreeSpace(File file, LinkedListNode<FreeSpace> node)
-    {
-        var freeSpace = node.Value;
-        if (file.Size() > freeSpace.Size)
+        if (freeSpaceBlock.Size < file.Size())
         {
-            memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.End);
-            PartiallyRemoveFile(file, freeSpace.Size);
-            freeSpaceList.Remove(freeSpace);
-            return;
+            return false;
         }
 
-        memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.Start + file.Size() - 1);
+        var (firstBlock, secondBlock) = freeSpaceBlock.Split(file.Size());
 
-
-        if (file.Size() == freeSpace.Size)
+        memory.WriteMemoryBlock(file.Id, firstBlock);
+        memory.FreeMemory(file.ToMemoryBlock());
+        file.ChangeMemoryBlock(firstBlock);
+        if (secondBlock.Size > 0)
         {
-            freeSpaceList.Remove(freeSpace);
-            RemoveFile(file);
-            return;
+            node.Value = secondBlock;
+        }
+        else
+        {
+            freeSpace.Remove(node);
         }
 
-        node.Value = freeSpace.TrimStart(file.Size());
-        RemoveFile(file);
+        return true;
     }
 
-    public IEnumerable<LinkedListNode<FreeSpace>> EnumerateFreeSpace()
+    public void DefragmentFile(File file)
     {
-        return new FreeSpaceEnumerable(freeSpaceList);
+    }
+
+    // public void OverwriteFreeSpace(File file, LinkedListNode<FreeSpaceTemp> node)
+    // {
+    //     var freeSpace = node.Value;
+    //     if (file.Size() > freeSpace.Size)
+    //     {
+    //         memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.End);
+    //         PartiallyRemoveFile(file, freeSpace.Size);
+    //         freeSpaceList.Remove(freeSpace);
+    //         return;
+    //     }
+    //
+    //     memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.Start + file.Size() - 1);
+    //
+    //
+    //     if (file.Size() == freeSpace.Size)
+    //     {
+    //         freeSpaceList.Remove(freeSpace);
+    //         RemoveFile(file);
+    //         return;
+    //     }
+    //
+    //     node.Value = freeSpace.TrimStart(file.Size());
+    //     RemoveFile(file);
+    // }
+
+    public IEnumerable<LinkedListNode<MemoryBlock>> EnumerateFreeSpace()
+    {
+        return freeSpace.EnumerateFreeSpace();
     }
 
     public long CalculateCheckSum()
     {
         return memory.CalculateCheckSum();
-    }
-
-    private class FreeSpaceEnumerable(LinkedList<FreeSpace> freeSpaceList) : IEnumerable<LinkedListNode<FreeSpace>>
-    {
-        public IEnumerator<LinkedListNode<FreeSpace>> GetEnumerator()
-        {
-            for (var node = freeSpaceList.First; node != null; node = node.Next)
-            {
-                yield return node;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }

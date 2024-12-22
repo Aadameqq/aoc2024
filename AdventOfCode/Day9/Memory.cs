@@ -5,7 +5,7 @@ public class Memory
     private const int FreeMemoryId = -1;
     private readonly List<int> memory = [];
 
-    public List<int> AllocateMemoryBlock(int id, int count)
+    public MemoryBlock AllocateMemoryBlock(int id, int count)
     {
         List<int> indexes = [];
         for (var i = 0; i < count; i++)
@@ -14,41 +14,30 @@ public class Memory
             memory.Add(id);
         }
 
-        return indexes;
+        return new MemoryBlock(indexes);
     }
 
-    public void AllocateFreeSpaceBlock(int count)
+    public MemoryBlock AllocateFreeSpaceBlock(int count)
     {
-        for (var i = 0; i < count; i++)
-        {
-            memory.Add(FreeMemoryId);
-        }
+        return AllocateMemoryBlock(FreeMemoryId, count);
     }
 
-    public void WriteMemoryBlock(int id, int start, int end)
+    public void WriteMemoryBlock(int id, MemoryBlock block)
     {
-        for (var i = start; i <= end; i++)
+        foreach (var index in block.Indexes)
         {
-            if (memory[i] != FreeMemoryId)
+            if (memory[index] != FreeMemoryId)
             {
                 throw new InvalidOperationException("Can only write to free memory");
             }
 
-            memory[i] = id;
+            memory[index] = id;
         }
     }
 
-    public void FreeMemory(int start, int end)
+    public void FreeMemory(MemoryBlock block)
     {
-        for (var i = start; i <= end; i++)
-        {
-            memory[i] = FreeMemoryId;
-        }
-    }
-
-    public void FreeMemory(List<int> indexes)
-    {
-        foreach (var index in indexes)
+        foreach (var index in block.Indexes)
         {
             memory[index] = FreeMemoryId;
         }
