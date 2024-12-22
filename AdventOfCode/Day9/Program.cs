@@ -5,7 +5,7 @@ const string dataFile = "../../../data/data.txt";
 
 var diskMap = File.ReadAllLines(dataFile)[0].ToCharArray().Select(x => x - '0').ToArray();
 
-var memory = new Memory(diskMap);
+var memory = new FileSystem(diskMap);
 
 foreach (var file in memory.EnumerateFilesBackwards())
 {
@@ -23,7 +23,7 @@ foreach (var file in memory.EnumerateFilesBackwards())
 
 Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
 
-memory = new Memory(diskMap);
+memory = new FileSystem(diskMap);
 
 foreach (var file in memory.EnumerateFilesBackwards())
 {
