@@ -1,35 +1,43 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿using Day9;
+using File = System.IO.File;
+
+const string dataFile = "../../../data/data.txt";
 
 var diskMap = File.ReadAllLines(dataFile)[0].ToCharArray().Select(x => x - '0').ToArray();
 
-var indexedDiskMap = new List<int>();
-var freeSpace = new List<int>();
+var memory = new Memory(diskMap);
 
-for (var i = 0; i < diskMap.Length; i += 2) indexedDiskMap.Add(diskMap[i]);
-for (var i = 1; i < diskMap.Length; i += 2) freeSpace.Add(diskMap[i]);
-
-var compressedDisk = new List<int>();
-
-var currentlyCompressedIndex = indexedDiskMap.Count - 1;
-
-for (var i = 0; i < freeSpace.Count; i++)
+foreach (var file in memory.EnumerateFilesBackwards())
 {
-    for (var j = 0; j < indexedDiskMap[i]; j++) compressedDisk.Add(i);
-
-    for (var j = 0; j < freeSpace[i] && i < currentlyCompressedIndex; j++)
+    var good = true;
+    while (file.Size() > 0 && file.Start > memory.GetFreeSpace().Start)
     {
-        compressedDisk.Add(currentlyCompressedIndex);
-        indexedDiskMap[currentlyCompressedIndex]--;
-        if (indexedDiskMap[currentlyCompressedIndex] == 0) currentlyCompressedIndex--;
+        if (!memory.IsThereFreeSpace())
+        {
+            break;
+        }
+
+        var freeSpace = memory.GetFreeSpace();
+        memory.OverwriteFreeSpace(freeSpace, file);
+    }
+
+    if (!good) break;
+}
+
+Console.WriteLine(memory.CalculateCheckSum());
+
+memory = new Memory(diskMap);
+
+foreach (var file in memory.EnumerateFilesBackwards())
+{
+    Console.WriteLine(file.Start);
+    for (var i = 0; i < memory.GetFreeSpaceCount(); i++)
+    {
+        var freeSpace = memory.GetFreeSpace(i);
+        if (freeSpace.Start > file.Start) break;
+        if (freeSpace.Size < file.Size()) continue;
+        memory.OverwriteFreeSpace(freeSpace, file, i);
     }
 }
 
-var checkSum = 0L;
-var index = 0;
-foreach (var filePart in compressedDisk)
-{
-    checkSum += filePart * index;
-    index++;
-}
-
-Console.WriteLine($"Checksum: {checkSum}");
+Console.WriteLine(memory.CalculateCheckSum());
