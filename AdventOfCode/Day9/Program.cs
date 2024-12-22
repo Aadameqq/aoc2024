@@ -9,7 +9,7 @@ var memory = new FileSystem(diskMap);
 
 foreach (var file in memory.EnumerateFilesBackwards())
 {
-    while (file.Size() > 0 && file.Start > memory.GetFirstFreeSpace().Value.Start)
+    while (file.Size() > 0 && file.MinIndex() > memory.GetFirstFreeSpace().Value.Start)
     {
         if (!memory.IsThereFreeSpace())
         {
@@ -21,6 +21,7 @@ foreach (var file in memory.EnumerateFilesBackwards())
     }
 }
 
+Console.WriteLine(memory.CalculateCheckSum());
 Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
 
 memory = new FileSystem(diskMap);
@@ -30,10 +31,11 @@ foreach (var file in memory.EnumerateFilesBackwards())
     foreach (var node in memory.EnumerateFreeSpace())
     {
         var freeSpace = node.Value;
-        if (freeSpace.Start > file.Start) break;
+        if (file.Indexes.Count == 0 || freeSpace.Start > file.MinIndex()) break;
         if (freeSpace.Size < file.Size()) continue;
         memory.OverwriteFreeSpace(file, node);
     }
 }
 
+Console.WriteLine(memory.CalculateCheckSum());
 Console.WriteLine(memory.CalculateCheckSum() == 6415163624282);

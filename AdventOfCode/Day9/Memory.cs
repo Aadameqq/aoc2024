@@ -5,15 +5,19 @@ public class Memory
     private const int FreeMemoryId = -1;
     private readonly List<int> memory = [];
 
-    public void AddMemoryBlock(int id, int count)
+    public List<int> AllocateMemoryBlock(int id, int count)
     {
+        List<int> indexes = [];
         for (var i = 0; i < count; i++)
         {
+            indexes.Add(memory.Count);
             memory.Add(id);
         }
+
+        return indexes;
     }
 
-    public void AddFreeSpaceBlock(int count)
+    public void AllocateFreeSpaceBlock(int count)
     {
         for (var i = 0; i < count; i++)
         {
@@ -39,6 +43,14 @@ public class Memory
         for (var i = start; i <= end; i++)
         {
             memory[i] = FreeMemoryId;
+        }
+    }
+
+    public void FreeMemory(List<int> indexes)
+    {
+        foreach (var index in indexes)
+        {
+            memory[index] = FreeMemoryId;
         }
     }
 

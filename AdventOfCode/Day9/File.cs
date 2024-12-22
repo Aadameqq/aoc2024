@@ -1,13 +1,17 @@
 namespace Day9;
 
-public class File(int _id, int _start, int _end)
+public class File(int _id, List<int> _indexes)
 {
     public readonly int Id = _id;
-    public int End = _end;
-    public int Start = _start;
+    public List<int> Indexes = [.._indexes];
 
     public int Size()
     {
-        return End - Start + 1;
+        return Indexes.Count;
+    }
+
+    public int MinIndex()
+    {
+        return Indexes.Min();
     }
 }
