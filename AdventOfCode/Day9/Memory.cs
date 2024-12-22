@@ -6,7 +6,7 @@ public class Memory
 {
     private const int FreeSpaceId = -1;
     private readonly List<File> files = [];
-    private readonly List<FreeSpace> freeSpaceList = [];
+    private readonly LinkedList<FreeSpace> freeSpaceList = [];
     private readonly List<int> memory = [];
 
     public Memory(int[] diskMap)
@@ -16,7 +16,7 @@ public class Memory
         {
             if (IsDiskMapFragmentFreeSpace(i))
             {
-                freeSpaceList.Add(new FreeSpace(memory.Count, memory.Count + diskMap[i] - 1));
+                freeSpaceList.AddLast(new FreeSpace(memory.Count, memory.Count + diskMap[i] - 1));
                 AddMemorySet(FreeSpaceId, diskMap[i]);
                 continue;
             }
@@ -40,6 +40,11 @@ public class Memory
         }
     }
 
+    public LinkedListNode<FreeSpace> GetFirstFreeSpace()
+    {
+        return freeSpaceList.First;
+    }
+
     private void OverwriteMemorySet(int id, int start, int end)
     {
         for (var i = start; i <= end; i++)
@@ -58,16 +63,6 @@ public class Memory
         return freeSpaceList.Count != 0;
     }
 
-    public FreeSpace GetFreeSpace(int index = 0)
-    {
-        return freeSpaceList[index];
-    }
-
-    public int GetFreeSpaceCount()
-    {
-        return freeSpaceList.Count;
-    }
-
     public void RemoveFile(File file)
     {
         OverwriteMemorySet(FreeSpaceId, file.Start, file.End);
@@ -78,8 +73,9 @@ public class Memory
         OverwriteMemorySet(FreeSpaceId, file.End - amount + 1, file.End);
     }
 
-    public void OverwriteFreeSpace(FreeSpace freeSpace, File file, int freeSpaceId = -1)
+    public void OverwriteFreeSpace(File file, LinkedListNode<FreeSpace> node)
     {
+        var freeSpace = node.Value;
         if (file.Size() > freeSpace.Size)
         {
             OverwriteMemorySet(file.Id, freeSpace.Start, freeSpace.End);
@@ -99,12 +95,8 @@ public class Memory
             return;
         }
 
-        if (freeSpaceId == -1)
-        {
-            freeSpaceId = freeSpaceList.IndexOf(freeSpace);
-        }
 
-        freeSpaceList[freeSpaceId] = freeSpace.TrimStart(file.Size());
+        node.Value = freeSpace.TrimStart(file.Size());
         file.Start = file.End + 1;
     }
 
@@ -120,6 +112,11 @@ public class Memory
         return checkSum;
     }
 
+    public IEnumerable<LinkedListNode<FreeSpace>> EnumerateFreeSpace()
+    {
+        return new FreeSpaceEnumerable(freeSpaceList);
+    }
+
     public class FilesEnumerable(List<File> files) : IEnumerable<File>
     {
         public IEnumerator<File> GetEnumerator()
@@ -127,6 +124,22 @@ public class Memory
             for (var i = files.Count - 1; i >= 0; i--)
             {
                 yield return files[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    public class FreeSpaceEnumerable(LinkedList<FreeSpace> freeSpaceList) : IEnumerable<LinkedListNode<FreeSpace>>
+    {
+        public IEnumerator<LinkedListNode<FreeSpace>> GetEnumerator()
+        {
+            for (var node = freeSpaceList.First; node != null; node = node.Next)
+            {
+                yield return node;
             }
         }
 

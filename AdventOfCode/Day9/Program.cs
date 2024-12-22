@@ -9,35 +9,31 @@ var memory = new Memory(diskMap);
 
 foreach (var file in memory.EnumerateFilesBackwards())
 {
-    var good = true;
-    while (file.Size() > 0 && file.Start > memory.GetFreeSpace().Start)
+    while (file.Size() > 0 && file.Start > memory.GetFirstFreeSpace().Value.Start)
     {
         if (!memory.IsThereFreeSpace())
         {
             break;
         }
 
-        var freeSpace = memory.GetFreeSpace();
-        memory.OverwriteFreeSpace(freeSpace, file);
+        var freeSpace = memory.GetFirstFreeSpace();
+        memory.OverwriteFreeSpace(file, freeSpace);
     }
-
-    if (!good) break;
 }
 
-Console.WriteLine(memory.CalculateCheckSum());
+Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
 
 memory = new Memory(diskMap);
 
 foreach (var file in memory.EnumerateFilesBackwards())
 {
-    Console.WriteLine(file.Start);
-    for (var i = 0; i < memory.GetFreeSpaceCount(); i++)
+    foreach (var node in memory.EnumerateFreeSpace())
     {
-        var freeSpace = memory.GetFreeSpace(i);
+        var freeSpace = node.Value;
         if (freeSpace.Start > file.Start) break;
         if (freeSpace.Size < file.Size()) continue;
-        memory.OverwriteFreeSpace(freeSpace, file, i);
+        memory.OverwriteFreeSpace(file, node);
     }
 }
 
-Console.WriteLine(memory.CalculateCheckSum());
+Console.WriteLine(memory.CalculateCheckSum() == 6415163624282);
