@@ -1,20 +1,51 @@
+using System.Collections;
+
 namespace Day9;
 
-public record FreeSpace
+public class FreeSpace
 {
-    public FreeSpace(int start, int end)
+    private readonly LinkedList<MemoryBlock> blocks = [];
+
+    public void Add(MemoryBlock block)
     {
-        Start = start;
-        End = end;
+        blocks.AddLast(block);
     }
 
-    public int Start { get; }
-    public int End { get; }
-
-    public int Size => End - Start + 1;
-
-    public FreeSpace TrimStart(int amount)
+    public LinkedListNode<MemoryBlock> GetFirstFreeMemoryBlock()
     {
-        return new FreeSpace(Start + amount, End);
+        return blocks.First;
+    }
+
+    public bool IsThereFreeSpace()
+    {
+        return blocks.Count != 0;
+    }
+
+    public IEnumerable<LinkedListNode<MemoryBlock>> EnumerateFreeSpace()
+    {
+        return new FreeSpaceEnumerable(blocks);
+    }
+
+    public void Remove(LinkedListNode<MemoryBlock> node)
+    {
+        blocks.Remove(node);
+    }
+
+
+    private class FreeSpaceEnumerable(LinkedList<MemoryBlock> blocks)
+        : IEnumerable<LinkedListNode<MemoryBlock>>
+    {
+        public IEnumerator<LinkedListNode<MemoryBlock>> GetEnumerator()
+        {
+            for (var node = blocks.First; node != null; node = node.Next)
+            {
+                yield return node;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }
