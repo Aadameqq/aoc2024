@@ -13,7 +13,6 @@ foreach (var file in fileSystem.EnumerateFilesBackwards())
 }
 
 Console.WriteLine(fileSystem.CalculateCheckSum());
-Console.WriteLine(fileSystem.CalculateCheckSum() == 6385338159127);
 
 fileSystem = new FileSystem(diskMap);
 
@@ -28,4 +27,3 @@ foreach (var file in fileSystem.EnumerateFilesBackwards())
 }
 
 Console.WriteLine(fileSystem.CalculateCheckSum());
-Console.WriteLine(fileSystem.CalculateCheckSum() == 6415163624282);

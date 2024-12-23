@@ -16,11 +16,6 @@ public class FreeSpace
         return blocks.First;
     }
 
-    public bool IsThereFreeSpace()
-    {
-        return blocks.Count != 0;
-    }
-
     public IEnumerable<LinkedListNode<MemoryBlock>> EnumerateFreeSpace()
     {
         return new FreeSpaceEnumerable(blocks);
