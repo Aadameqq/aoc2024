@@ -15,4 +15,9 @@ public record MemoryBlock(List<int> Indexes)
 
         return (first, second);
     }
+
+    public MemoryBlock JoinWith(MemoryBlock otherBlock)
+    {
+        return new MemoryBlock([..Indexes, ..otherBlock.Indexes]);
+    }
 }

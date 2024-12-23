@@ -34,13 +34,6 @@ public class FileSystem
         return files.AsEnumerable().Reverse();
     }
 
-
-    // public void PartiallyRemoveFile(File file, int amount)
-    // {
-    //     memory.FreeMemory(file.Indexes[^amount..]);
-    //     file.Indexes = file.Indexes[..^amount];
-    // }
-
     public bool TryMoveFile(File file, LinkedListNode<MemoryBlock> node)
     {
         var freeSpaceBlock = node.Value;
@@ -69,32 +62,49 @@ public class FileSystem
 
     public void DefragmentFile(File file)
     {
-    }
+        var newBlock = MemoryBlock.Empty;
 
-    // public void OverwriteFreeSpace(File file, LinkedListNode<FreeSpaceTemp> node)
-    // {
-    //     var freeSpace = node.Value;
-    //     if (file.Size() > freeSpace.Size)
-    //     {
-    //         memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.End);
-    //         PartiallyRemoveFile(file, freeSpace.Size);
-    //         freeSpaceList.Remove(freeSpace);
-    //         return;
-    //     }
-    //
-    //     memory.WriteMemoryBlock(file.Id, freeSpace.Start, freeSpace.Start + file.Size() - 1);
-    //
-    //
-    //     if (file.Size() == freeSpace.Size)
-    //     {
-    //         freeSpaceList.Remove(freeSpace);
-    //         RemoveFile(file);
-    //         return;
-    //     }
-    //
-    //     node.Value = freeSpace.TrimStart(file.Size());
-    //     RemoveFile(file);
-    // }
+        var size = file.Size();
+
+        var node = freeSpace.GetFirstFreeMemoryBlock();
+
+        while (node != null)
+        {
+            if (size <= 0) break;
+            var freeBlock = node.Value;
+
+            if (file.DoesOccurBefore(freeBlock)) break;
+
+            var toMove = Math.Min(size, freeBlock.Size);
+
+            var (firstFree, secondFree) = freeBlock.Split(toMove);
+
+            newBlock = newBlock.JoinWith(firstFree);
+            size -= firstFree.Size;
+            if (secondFree.Size > 0)
+            {
+                node.Value = secondFree;
+                node = node.Next;
+            }
+            else
+            {
+                node = node.Next;
+                freeSpace.Remove(node.Previous);
+            }
+        }
+
+        var oldBlock = file.ToMemoryBlock();
+
+        if (size > 0)
+        {
+            var (left, _) = oldBlock.Split(size);
+            newBlock = newBlock.JoinWith(left);
+        }
+
+        memory.FreeMemory(oldBlock);
+        memory.WriteMemoryBlock(file.Id, newBlock);
+        file.ChangeMemoryBlock(newBlock);
+    }
 
     public IEnumerable<LinkedListNode<MemoryBlock>> EnumerateFreeSpace()
     {

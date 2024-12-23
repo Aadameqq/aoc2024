@@ -31,7 +31,6 @@ public class FreeSpace
         blocks.Remove(node);
     }
 
-
     private class FreeSpaceEnumerable(LinkedList<MemoryBlock> blocks)
         : IEnumerable<LinkedListNode<MemoryBlock>>
     {

@@ -7,22 +7,13 @@ var diskMap = File.ReadAllLines(dataFile)[0].ToCharArray().Select(x => x - '0').
 
 var fileSystem = new FileSystem(diskMap);
 
-// foreach (var file in memory.EnumerateFilesBackwards())
-// {
-//     while (file.Size() > 0 && file.MinIndex() > memory.GetFirstFreeSpace().Value.Start)
-//     {
-//         if (!memory.IsThereFreeSpace())
-//         {
-//             break;
-//         }
-//
-//         var freeSpace = memory.GetFirstFreeSpace();
-//         memory.OverwriteFreeSpace(file, freeSpace);
-//     }
-// }
-//
-// Console.WriteLine(memory.CalculateCheckSum());
-// Console.WriteLine(memory.CalculateCheckSum() == 6385338159127);
+foreach (var file in fileSystem.EnumerateFilesBackwards())
+{
+    fileSystem.DefragmentFile(file);
+}
+
+Console.WriteLine(fileSystem.CalculateCheckSum());
+Console.WriteLine(fileSystem.CalculateCheckSum() == 6385338159127);
 
 fileSystem = new FileSystem(diskMap);
 
