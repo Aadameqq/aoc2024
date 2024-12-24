@@ -6,31 +6,49 @@ var playerPosition = new Position(0, 0);
 
 List<char[]> map = [];
 List<char> commands = [];
+const char Player = '@';
+const char Wall = '#';
+const char Box = 'O';
+const char Empty = '.';
+
 
 foreach (var line in File.ReadLines(dataFile))
 {
-    if (line.StartsWith('#'))
+    if (line.StartsWith(Wall))
     {
         map.Add(line.ToCharArray());
+        continue;
     }
 
-    if (line.StartsWith('>') || line.StartsWith('^') || line.StartsWith('<') || line.StartsWith('v'))
-    {
-        commands.AddRange(line.ToCharArray());
-    }
+    if (line.Length == 0) continue;
+
+    commands.AddRange(line.ToCharArray());
 }
 
-for (var i = 0; i < map.Count; i++)
+var mapSizeX = map[0].Length;
+var mapSizeY = map.Count;
+
+char GetObjectAtPosition(Position position)
 {
-    for (var j = 0; j < map[i].Length; j++)
+    return map[position.Y][position.X];
+}
+
+void SetObjectAtPosition(Position position, char obj)
+{
+    map[position.Y][position.X] = obj;
+}
+
+for (var x = 0; x < mapSizeX; x++)
+{
+    for (var y = 0; y < mapSizeY; y++)
     {
-        if (map[i][j] == '@')
+        var currPosition = new Position(x, y);
+        if (GetObjectAtPosition(currPosition) == Player)
         {
-            playerPosition = new Position(j, i);
+            playerPosition = currPosition;
         }
     }
 }
-
 
 Dictionary<char, Transition> directions = new()
 {
@@ -40,65 +58,55 @@ Dictionary<char, Transition> directions = new()
     { 'v', new Transition(0, 1) }
 };
 
-char GetMapPosition(Position position)
-{
-    return map[position.Y][position.X];
-}
-
-void SetMapPosition(Position position, char value)
-{
-    map[position.Y][position.X] = value;
-}
-
-
 foreach (var command in commands)
 {
     var transition = directions[command];
     var newPosition = transition.TransitionPosition(playerPosition);
 
-    if (GetMapPosition(newPosition) == '#')
+    if (GetObjectAtPosition(newPosition) == Wall)
     {
-        // PrintMap();
         continue;
     }
 
-    if (GetMapPosition(newPosition) == '.')
+    if (GetObjectAtPosition(newPosition) == Empty)
     {
-        SetMapPosition(playerPosition, '.');
-        SetMapPosition(newPosition, '@');
+        SetObjectAtPosition(playerPosition, Empty);
+        SetObjectAtPosition(newPosition, Player);
         playerPosition = newPosition;
     }
 
-    if (GetMapPosition(newPosition) == 'O')
+    if (GetObjectAtPosition(newPosition) == Box)
     {
         var position = newPosition.Copy();
 
-        while (GetMapPosition(position) == 'O')
+        while (GetObjectAtPosition(position) == Box)
         {
             position = transition.TransitionPosition(position);
         }
 
-        if (GetMapPosition(position) == '.')
-        {
-            SetMapPosition(position, 'O');
-            SetMapPosition(playerPosition, '.');
-            SetMapPosition(newPosition, '@');
-            playerPosition = newPosition;
-        }
+        if (GetObjectAtPosition(position) == Wall) continue;
+
+        SetObjectAtPosition(position, Box);
+        SetObjectAtPosition(playerPosition, Empty);
+        SetObjectAtPosition(newPosition, Player);
+        playerPosition = newPosition;
     }
 }
 
-var total = 0L;
+var sum = 0L;
 
-for (var i = 0; i < map.Count; i++)
+const int YCoordinateMultiplier = 100;
+const int XCoordinateMultiplier = 1;
+
+for (var x = 0; x < mapSizeX; x++)
 {
-    for (var j = 0; j < map[i].Length; j++)
+    for (var y = 0; y < mapSizeY; y++)
     {
-        if (map[i][j] == 'O')
+        if (GetObjectAtPosition(new Position(x, y)) == Box)
         {
-            total += i * 100 + j;
+            sum += y * YCoordinateMultiplier + x * XCoordinateMultiplier;
         }
     }
 }
 
-Console.WriteLine(total);
+Console.WriteLine($"Sum of coordinates: {sum}");
