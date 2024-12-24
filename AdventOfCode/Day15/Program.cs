@@ -1,5 +1,4 @@
 ﻿using Day15;
-using Day8;
 
 const string dataFile = "../../../data/data.txt";
 var playerPosition = new Position(0, 0);

@@ -1,6 +1,4 @@
-using Day15;
-
-namespace Day8;
+namespace Day15;
 
 public class Transition(int X, int Y)
 {
