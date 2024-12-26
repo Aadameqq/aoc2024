@@ -1,4 +1,4 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 
 var data = File.ReadAllLines(dataFile).ToList();
 var rowsAmount = data[0].Length;

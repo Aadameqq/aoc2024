@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 
 var sum = 0;
 var sumWithConditionals = 0;

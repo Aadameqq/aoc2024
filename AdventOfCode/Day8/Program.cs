@@ -1,6 +1,6 @@
 ﻿using Day8;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 
 var antennasByFrequency = new Dictionary<char, List<Position>>();
 

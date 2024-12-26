@@ -1,7 +1,7 @@
 ﻿using Day9;
 using File = System.IO.File;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 
 var diskMap = File.ReadAllLines(dataFile)[0].ToCharArray().Select(x => x - '0').ToArray();
 

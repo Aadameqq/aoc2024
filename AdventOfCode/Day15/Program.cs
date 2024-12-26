@@ -1,6 +1,6 @@
 ﻿using Day15;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 
 List<char[]> map = [];
 List<char[]> mapForExtended = [];

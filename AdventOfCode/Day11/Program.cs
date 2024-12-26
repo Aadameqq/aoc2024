@@ -1,6 +1,6 @@
 ﻿using Day11;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 var input = File.ReadAllLines(dataFile)[0].Split(" ");
 
 var stones = new Stones(input);

@@ -1,4 +1,4 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 
 
 bool CheckPath(long numToAchieve, int[] nums, long acc = 0, int index = 0)

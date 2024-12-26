@@ -1,4 +1,4 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 
 var lines = File.ReadAllLines(dataFile);
 var trails = lines.Select(line => line.Select(x => x - '0').ToArray()).ToArray();

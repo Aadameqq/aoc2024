@@ -1,6 +1,6 @@
 ﻿using Day12;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 var fields = File.ReadAllLines(dataFile);
 
 var totalRows = fields.Length;

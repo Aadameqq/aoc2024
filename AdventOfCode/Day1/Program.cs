@@ -1,7 +1,6 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 List<int> firstList = [];
 List<int> secondList = [];
-
 
 foreach (var line in File.ReadLines(dataFile))
 {

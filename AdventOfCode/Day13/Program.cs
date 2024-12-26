@@ -26,7 +26,7 @@ return;
 
 MatchCollection GetRegexMatches()
 {
-    const string dataFile = "../../../data/data.txt";
+    const string dataFile = "./data/data.txt";
     var input = File.ReadAllText(dataFile);
 
     var pattern = @"Button A: X\+(\d+), Y\+(\d+)\s*" +

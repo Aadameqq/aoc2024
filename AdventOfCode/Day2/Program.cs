@@ -1,4 +1,4 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 
 var safeReports = 0;
 var safeReportsWithDampener = 0;

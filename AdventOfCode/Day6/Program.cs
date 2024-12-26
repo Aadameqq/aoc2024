@@ -1,6 +1,6 @@
 ﻿using Day6;
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 
 var input = File.ReadAllLines(dataFile);
 

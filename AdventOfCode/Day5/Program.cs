@@ -1,4 +1,4 @@
-﻿const string dataFile = "../../../data/data.txt";
+﻿const string dataFile = "./data/data.txt";
 
 var pagesRestrictions = new Dictionary<int, List<int>>();
 var sum = 0;

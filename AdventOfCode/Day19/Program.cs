@@ -1,6 +1,6 @@
 ﻿List<string> availableTowels = [];
 
-const string dataFile = "../../../data/data.txt";
+const string dataFile = "./data/data.txt";
 var input = File.ReadAllLines(dataFile);
 
 foreach (var towel in input[0].Split(", ").ToArray())
