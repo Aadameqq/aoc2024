@@ -3,7 +3,7 @@ namespace Day15;
 public class Robot(Warehouse _warehouse)
 {
     private readonly Warehouse warehouse = _warehouse;
-    private Position position = _warehouse.LocatePlayer();
+    private Position position = _warehouse.LocateRobot();
 
 
     public void ExecuteCommand(Transition transition)
@@ -18,7 +18,7 @@ public class Robot(Warehouse _warehouse)
         if (warehouse.GetElementAtPosition(nextPosition) == Warehouse.Empty)
         {
             warehouse.SetElementAtPosition(position, Warehouse.Empty);
-            warehouse.SetElementAtPosition(nextPosition, Warehouse.Player);
+            warehouse.SetElementAtPosition(nextPosition, Warehouse.Robot);
             position = nextPosition;
         }
 
@@ -38,7 +38,7 @@ public class Robot(Warehouse _warehouse)
 
         warehouse.SetElementAtPosition(nextBox, Warehouse.Box);
         warehouse.SetElementAtPosition(position, Warehouse.Empty);
-        warehouse.SetElementAtPosition(firstBox, Warehouse.Player);
+        warehouse.SetElementAtPosition(firstBox, Warehouse.Robot);
         position = firstBox;
     }
 }

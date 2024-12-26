@@ -1,14 +1,24 @@
 namespace Day15;
 
-public class Warehouse(List<char[]> _map)
+public class Warehouse
 {
-    public const char Player = '@';
+    public const char Robot = '@';
     public const char Wall = '#';
     public const char Box = 'O';
     public const char Empty = '.';
-    private readonly List<char[]> map = _map;
-    private readonly int sizeX = _map[0].Length;
-    private readonly int sizeY = _map.Count;
+    protected List<char[]> map;
+
+    public Warehouse(List<char[]> _map)
+    {
+        map = _map;
+    }
+
+    protected Warehouse()
+    {
+    }
+
+    private int sizeX => map[0].Length;
+    private int sizeY => map.Count;
 
     public char GetElementAtPosition(Position Position)
     {
@@ -20,14 +30,14 @@ public class Warehouse(List<char[]> _map)
         map[Position.Y][Position.X] = value;
     }
 
-    public Position LocatePlayer()
+    public Position LocateRobot()
     {
         for (var x = 0; x < sizeX; x++)
         {
             for (var y = 0; y < sizeY; y++)
             {
                 var currPosition = new Position(x, y);
-                if (GetElementAtPosition(currPosition) == Player)
+                if (GetElementAtPosition(currPosition) == Robot)
                 {
                     return currPosition;
                 }
@@ -37,7 +47,7 @@ public class Warehouse(List<char[]> _map)
         throw new InvalidOperationException("Player not found on the map.");
     }
 
-    public long CalculateCoordinatesSum()
+    public long CalculateCoordinatesSum(char boxChar = Box)
     {
         var sum = 0L;
 
@@ -48,7 +58,7 @@ public class Warehouse(List<char[]> _map)
         {
             for (var y = 0; y < sizeY; y++)
             {
-                if (GetElementAtPosition(new Position(x, y)) == Box)
+                if (GetElementAtPosition(new Position(x, y)) == boxChar)
                 {
                     sum += y * yCoordinateMultiplier + x * xCoordinateMultiplier;
                 }
