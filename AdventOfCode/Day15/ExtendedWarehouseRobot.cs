@@ -1,11 +1,11 @@
 namespace Day15;
 
-public class ExtendedMapRobot(ExtendedWarehouse _warehouse)
+public class ExtendedWarehouseRobot(ExtendedWarehouse _warehouse)
 {
     private readonly ExtendedWarehouse warehouse = _warehouse;
     private Position position = _warehouse.LocateRobot();
 
-    public void ExecuteCommand(Transition transition)
+    public void Move(Transition transition)
     {
         var nextPosition = transition.TransitionPosition(position);
 
@@ -137,9 +137,9 @@ public class ExtendedMapRobot(ExtendedWarehouse _warehouse)
     {
         if (warehouse.GetElementAtPosition(boxPart) == ExtendedWarehouse.RightBox)
         {
-            return new Transition(-1, 0).TransitionPosition(boxPart);
+            return Transition.BaseLeft.TransitionPosition(boxPart);
         }
 
-        return new Transition(1, 0).TransitionPosition(boxPart);
+        return Transition.BaseRight.TransitionPosition(boxPart);
     }
 }

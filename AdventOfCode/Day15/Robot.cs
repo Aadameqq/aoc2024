@@ -6,7 +6,7 @@ public class Robot(Warehouse _warehouse)
     private Position position = _warehouse.LocateRobot();
 
 
-    public void ExecuteCommand(Transition transition)
+    public void Move(Transition transition)
     {
         var nextPosition = transition.TransitionPosition(position);
 
