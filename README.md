@@ -19,6 +19,6 @@ git clone https://github.com/Aadameqq/aoc2024.git
 
 Run the solution for a specific day, use the following command:
 ```bash
-dotnet run --project DayN
+dotnet run --project AdventOfCode/DayN
 ```
 replace `N` with the corresponding day number.
